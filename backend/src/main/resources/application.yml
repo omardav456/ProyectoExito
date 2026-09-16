@@ -1,0 +1,42 @@
+spring:
+  application:
+    name: exito-stock-ai
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/exito_stock_ai}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
+    hikari:
+      maximum-pool-size: 5
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: false
+
+  jackson:
+    default-property-inclusion: non_null
+
+server:
+  port: ${PORT:8080}
+
+app:
+  cors:
+    allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://localhost:5173,http://localhost:8443}
+  seed:
+    catalog-enabled: ${APP_SEED_CATALOG_ENABLED:true}
+    demo-enabled: ${APP_SEED_DEMO_ENABLED:true}
+  security:
+    enabled: ${APP_SECURITY_ENABLED:true}
+  jwt:
+    secret: ${APP_JWT_SECRET:desarrollo-secreto-exito-stock-ai-2026-identidad-visual-propia}
+    expiration-ms: ${APP_JWT_EXPIRATION_MS:28800000}
