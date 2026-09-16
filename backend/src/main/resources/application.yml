@@ -35,6 +35,7 @@ app:
   seed:
     catalog-enabled: ${APP_SEED_CATALOG_ENABLED:true}
     demo-enabled: ${APP_SEED_DEMO_ENABLED:true}
+    users-enabled: ${APP_SEED_USERS_ENABLED:true}
   security:
     enabled: ${APP_SECURITY_ENABLED:true}
   jwt:

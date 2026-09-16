@@ -9,8 +9,6 @@ import com.exito.stockai.model.inventario.Recomendacion;
 import com.exito.stockai.model.inventario.enums.TipoAlerta;
 import com.exito.stockai.model.inventario.enums.TipoDemanda;
 import com.exito.stockai.model.inventario.enums.TipoMovimiento;
-import com.exito.stockai.model.security.Rol;
-import com.exito.stockai.model.security.Usuario;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import com.exito.stockai.model.modelos.AplicacionModelo;
@@ -37,9 +35,7 @@ import com.exito.stockai.repository.MovimientoInventarioRepository;
 import com.exito.stockai.repository.ParametroModeloRepository;
 import com.exito.stockai.repository.ProductoRepository;
 import com.exito.stockai.repository.RecomendacionRepository;
-import com.exito.stockai.repository.RolRepository;
 import com.exito.stockai.repository.SubcategoriaModeloRepository;
-import com.exito.stockai.repository.UsuarioRepository;
 import com.exito.stockai.repository.VariableModeloRepository;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
@@ -56,9 +52,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 @Component
 @ConditionalOnProperty("app.seed.catalog-enabled")
@@ -90,9 +86,7 @@ public class DataSeeder implements CommandLineRunner {
     private final CategoriaRepository categoriaRepository;
     private final AlertaRepository alertaRepository;
     private final RecomendacionRepository recomendacionRepository;
-    private final UsuarioRepository usuarioRepository;
-    private final RolRepository rolRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final TransactionTemplate transactionTemplate;
 
     public DataSeeder(ObjectMapper objectMapper,
                       ModeloMatematicoRepository modeloMatematicoRepository,
@@ -109,9 +103,7 @@ public class DataSeeder implements CommandLineRunner {
                       CategoriaRepository categoriaRepository,
                       AlertaRepository alertaRepository,
                       RecomendacionRepository recomendacionRepository,
-                      UsuarioRepository usuarioRepository,
-                      RolRepository rolRepository,
-                      PasswordEncoder passwordEncoder) {
+                      PlatformTransactionManager transactionManager) {
         this.objectMapper = objectMapper;
         this.modeloMatematicoRepository = modeloMatematicoRepository;
         this.areaRepository = areaRepository;
@@ -127,62 +119,22 @@ public class DataSeeder implements CommandLineRunner {
         this.categoriaRepository = categoriaRepository;
         this.alertaRepository = alertaRepository;
         this.recomendacionRepository = recomendacionRepository;
-        this.usuarioRepository = usuarioRepository;
-        this.rolRepository = rolRepository;
-        this.passwordEncoder = passwordEncoder;
+        this.transactionTemplate = new TransactionTemplate(transactionManager);
     }
 
     @Override
-    @Transactional
     public void run(String... args) {
-        seedUsuarios();
-        seedReferenciaDemo();
-        seedDemandaYMovimientos();
-        seedCatalogo();
-        marcarModelosPiloto();
+        ejecutarSeccion("referencia-demo", this::seedReferenciaDemo);
+        ejecutarSeccion("demanda-movimientos", this::seedDemandaYMovimientos);
+        ejecutarSeccion("catalogo", this::seedCatalogo);
+        ejecutarSeccion("modelos-piloto", this::marcarModelosPiloto);
     }
 
-    // ---------------------------------------------------------------
-    // Usuarios demo con roles ADMINISTRADOR, EMPLEADO y CLIENTE
-    // ---------------------------------------------------------------
-
-    private void seedUsuarios() {
-        Rol admin = rolRepository.findByNombre("ADMINISTRADOR")
-                .orElseGet(() -> rolRepository.save(Rol.builder().nombre("ADMINISTRADOR").build()));
-        Rol empleado = rolRepository.findByNombre("EMPLEADO")
-                .orElseGet(() -> rolRepository.save(Rol.builder().nombre("EMPLEADO").build()));
-        Rol cliente = rolRepository.findByNombre("CLIENTE")
-                .orElseGet(() -> rolRepository.save(Rol.builder().nombre("CLIENTE").build()));
-
-        if (!usuarioRepository.existsByEmailIgnoreCase("admin@exito.co")) {
-            usuarioRepository.save(Usuario.builder()
-                    .email("admin@exito.co")
-                    .passwordHash(passwordEncoder.encode("admin123"))
-                    .nombre("Administrador Demo")
-                    .rol(admin)
-                    .activo(true)
-                    .build());
-            log.info("DataSeeder: usuario demo creado admin@exito.co (ADMINISTRADOR)");
-        }
-        if (!usuarioRepository.existsByEmailIgnoreCase("empleado@exito.co")) {
-            usuarioRepository.save(Usuario.builder()
-                    .email("empleado@exito.co")
-                    .passwordHash(passwordEncoder.encode("empleado123"))
-                    .nombre("Empleado Demo")
-                    .rol(empleado)
-                    .activo(true)
-                    .build());
-            log.info("DataSeeder: usuario demo creado empleado@exito.co (EMPLEADO)");
-        }
-        if (!usuarioRepository.existsByEmailIgnoreCase("cliente@exito.co")) {
-            usuarioRepository.save(Usuario.builder()
-                    .email("cliente@exito.co")
-                    .passwordHash(passwordEncoder.encode("cliente123"))
-                    .nombre("Cliente Demo")
-                    .rol(cliente)
-                    .activo(true)
-                    .build());
-            log.info("DataSeeder: usuario demo creado cliente@exito.co (CLIENTE)");
+    private void ejecutarSeccion(String seccion, Runnable accion) {
+        try {
+            transactionTemplate.executeWithoutResult(estado -> accion.run());
+        } catch (RuntimeException e) {
+            log.error("DataSeeder: falló la sección '{}': {}", seccion, e.getMessage(), e);
         }
     }
 

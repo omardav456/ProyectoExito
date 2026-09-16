@@ -22,3 +22,4 @@ app:
   seed:
     catalog-enabled: false
     demo-enabled: false
+    users-enabled: false

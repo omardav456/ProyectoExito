@@ -30,7 +30,8 @@ import org.springframework.test.web.servlet.MockMvc;
 @TestPropertySource(properties = {
         "app.security.enabled=true",
         "app.seed.catalog-enabled=true",
-        "app.seed.demo-enabled=true"
+        "app.seed.demo-enabled=true",
+        "app.seed.users-enabled=true"
 })
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class SeguridadFlujoCompletoTest {
