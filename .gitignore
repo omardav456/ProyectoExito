@@ -1,0 +1,17 @@
+# Dependencias
+node_modules/
+
+# Salidas de build
+frontend/dist/
+backend/target/
+
+# Entorno
+.env
+.env.*
+
+# Logs / IDE / OS
+*.log
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
