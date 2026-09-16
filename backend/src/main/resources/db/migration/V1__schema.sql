@@ -96,13 +96,13 @@ CREATE TABLE simulaciones (
 -- ---------------------------------------------------------------------------
 
 CREATE TABLE areas_modelo (
-    id          SERIAL PRIMARY KEY,
+    id          BIGSERIAL PRIMARY KEY,
     nombre      VARCHAR(80) NOT NULL UNIQUE,
     descripcion TEXT
 );
 
 CREATE TABLE categorias_modelo (
-    id          SERIAL PRIMARY KEY,
+    id          BIGSERIAL PRIMARY KEY,
     area_id     BIGINT      NOT NULL REFERENCES areas_modelo (id),
     nombre      VARCHAR(120) NOT NULL,
     descripcion TEXT,
@@ -110,7 +110,7 @@ CREATE TABLE categorias_modelo (
 );
 
 CREATE TABLE subcategorias_modelo (
-    id          SERIAL PRIMARY KEY,
+    id          BIGSERIAL PRIMARY KEY,
     categoria_id BIGINT      NOT NULL REFERENCES categorias_modelo (id),
     nombre      VARCHAR(120) NOT NULL,
     descripcion TEXT,
@@ -118,7 +118,7 @@ CREATE TABLE subcategorias_modelo (
 );
 
 CREATE TABLE modelos_matematicos (
-    id             SERIAL PRIMARY KEY,
+    id             BIGSERIAL PRIMARY KEY,
     subcategoria_id BIGINT       NOT NULL REFERENCES subcategorias_modelo (id),
     codigo         VARCHAR(20)   NOT NULL UNIQUE,
     nombre         VARCHAR(180)  NOT NULL,
@@ -139,7 +139,7 @@ CREATE INDEX idx_modelos_estado_tipo  ON modelos_matematicos (estado, tipo_model
 CREATE INDEX idx_modelos_complejidad  ON modelos_matematicos (complejidad);
 
 CREATE TABLE variables_modelo (
-    id          SERIAL PRIMARY KEY,
+    id          BIGSERIAL PRIMARY KEY,
     modelo_id   BIGINT      NOT NULL REFERENCES modelos_matematicos (id) ON DELETE CASCADE,
     nombre      VARCHAR(120) NOT NULL,
     simbolo     VARCHAR(30),
@@ -152,7 +152,7 @@ CREATE TABLE variables_modelo (
 CREATE INDEX idx_variables_modelo ON variables_modelo (modelo_id);
 
 CREATE TABLE parametros_modelo (
-    id               SERIAL PRIMARY KEY,
+    id               BIGSERIAL PRIMARY KEY,
     modelo_id        BIGINT      NOT NULL REFERENCES modelos_matematicos (id) ON DELETE CASCADE,
     nombre           VARCHAR(120) NOT NULL,
     simbolo          VARCHAR(30),
@@ -164,7 +164,7 @@ CREATE TABLE parametros_modelo (
 CREATE INDEX idx_parametros_modelo ON parametros_modelo (modelo_id);
 
 CREATE TABLE metodos_numericos (
-    id          SERIAL PRIMARY KEY,
+    id          BIGSERIAL PRIMARY KEY,
     nombre      VARCHAR(120) NOT NULL UNIQUE,
     descripcion TEXT
 );
@@ -176,7 +176,7 @@ CREATE TABLE modelo_metodo (
 );
 
 CREATE TABLE aplicaciones_modelo (
-    id          SERIAL PRIMARY KEY,
+    id          BIGSERIAL PRIMARY KEY,
     modelo_id   BIGINT NOT NULL REFERENCES modelos_matematicos (id) ON DELETE CASCADE,
     descripcion VARCHAR(255) NOT NULL
 );
@@ -200,7 +200,7 @@ CREATE TABLE ejecuciones_modelo (
 -- ---------------------------------------------------------------------------
 
 CREATE TABLE roles (
-    id     SERIAL PRIMARY KEY,
+    id     BIGSERIAL PRIMARY KEY,
     nombre VARCHAR(30) NOT NULL UNIQUE CHECK (nombre IN ('CLIENTE', 'PROVEEDOR', 'ADMINISTRADOR'))
 );
 
