@@ -11,7 +11,7 @@ public interface ProductoRepository extends JpaRepository<Producto, Long> {
 
     @Query("""
         SELECT p FROM Producto p JOIN p.categoria c
-        WHERE (:q IS NULL OR LOWER(p.nombre) LIKE LOWER(CONCAT('%', :q, '%')))
+        WHERE (:q IS NULL OR LOWER(p.nombre) LIKE LOWER(CONCAT('%', CAST(:q AS string), '%')))
           AND (:categoriaId IS NULL OR c.id = :categoriaId)
           AND (:activo IS NULL OR p.activo = :activo)
         ORDER BY p.nombre

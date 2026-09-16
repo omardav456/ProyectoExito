@@ -26,8 +26,8 @@ public interface ModeloMatematicoRepository extends JpaRepository<ModeloMatemati
           AND (:complejidad IS NULL OR m.complejidad = :complejidad)
           AND (:estado IS NULL OR m.estado = :estado)
           AND (:q IS NULL
-               OR LOWER(m.nombre) LIKE LOWER(CONCAT('%', :q, '%'))
-               OR LOWER(m.descripcion) LIKE LOWER(CONCAT('%', :q, '%')))
+               OR LOWER(m.nombre) LIKE LOWER(CONCAT('%', CAST(:q AS string), '%'))
+               OR LOWER(m.descripcion) LIKE LOWER(CONCAT('%', CAST(:q AS string), '%')))
         ORDER BY m.codigo
         """)
     Page<ModeloMatematico> buscar(@Param("areaId") Long areaId,
@@ -49,8 +49,8 @@ public interface ModeloMatematicoRepository extends JpaRepository<ModeloMatemati
           AND (:complejidad IS NULL OR m.complejidad = :complejidad)
           AND (:estado IS NULL OR m.estado = :estado)
           AND (:q IS NULL
-               OR LOWER(m.nombre) LIKE LOWER(CONCAT('%', :q, '%'))
-               OR LOWER(m.descripcion) LIKE LOWER(CONCAT('%', :q, '%')))
+               OR LOWER(m.nombre) LIKE LOWER(CONCAT('%', CAST(:q AS string), '%'))
+               OR LOWER(m.descripcion) LIKE LOWER(CONCAT('%', CAST(:q AS string), '%')))
         """)
     long contar(@Param("areaId") Long areaId,
                 @Param("categoriaId") Long categoriaId,
